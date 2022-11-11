@@ -25,6 +25,8 @@ class _HomeScreenState extends State<HomeScreen> {
     var jsonData = jsonDecode(response.body);
     if (response.statusCode == 200) {
       return Post.fromJson(jsonData);
+      // List<dynamic> dataList = [];
+      // dataList = jsonDecode(data.body)["prices"];
       // for (Map i in data) {
       //   postList.add(PostsModels.fromJson(i));
       // }
@@ -61,12 +63,13 @@ class _HomeScreenState extends State<HomeScreen> {
               future:post,
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
+                  // var data = postList![index].attedDetails[index];
                   return ListView.builder(
                       itemCount: postList!.length,
                       itemBuilder: (context, index) {
                         return GestureDetector(
                             onTap: () => Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const EventDetails(),
+                              builder: (context) => EventDetails(postList![index].attedDetails[index],postList![index].id),
                             )),
                           child:Container(
                             margin: EdgeInsets.all(20),
@@ -199,9 +202,11 @@ class NavigationDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.event_rounded),
             title: const Text('Events'),
-            onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => const EventDetails(),
-            )),
+            onTap: (){
+            //     Navigator.of(context).push(MaterialPageRoute(
+            //   builder: (context) =>  EventDetails(postList![index].attedDetails[index],postList![index].id),
+            // ));
+                }
           ),
           const Divider(color: Color.fromRGBO(119, 14, 45, 1)),
           ListTile(
