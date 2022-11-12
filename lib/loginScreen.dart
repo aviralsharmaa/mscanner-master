@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart ' as http;
 import 'package:http/http.dart%20';
@@ -20,24 +22,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  Future<logindata?>? cred;
+  Future<Logindata?>? cred;
 
-  Future<http.Response> callLoginApi() async {
-    var url ='https://api.msocialin.com/api/Authontication_Controller/login';
 
-    Map data = {
-      'username':
-      'password'
-    }
-    //encode Map to JSON
-    var body = json.encode(data);
-
-    var response = await http.post(url,
-        headers: {"Content-Type": "application/json"},
-        body: body
-    );
-    print("${response.statusCode}");
-    print("
   // List<Data>? idpass = [];
 
   // Future<logindata> loginauth() async{
@@ -131,7 +118,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               GestureDetector(
                 child: TextButton(
                   onPressed: (){
-                    callLoginApi();
+                    postRequest(emailController.text,passwordController.text);
                   },
                   child: Container(
                     height: 50,
@@ -156,20 +143,54 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  callLoginApi() {
-    final service = ApiServices();
+  Future<http.Response> postRequest (String username,String password) async {
+    var url =Uri.parse('https://api.msocialin.com/api/Authontication_Controller/login');
 
-    service.apiCallLogin(
-      {
-        "Username":emailController.text,
-        "Password":passwordController.text,
-      },
-    ).then((value){
-      if(value.status != null){
-        print(value.status!);
-      }else{
-        print(value.message!);
-      }
-    });
+    Map<String, String> headers = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    };
+
+    Map data = {
+      'username':username,
+      'password':password,
+    };
+    //encode Map to JSON
+    var body = json.encode(data);
+
+    var response = await http.post(url,
+        headers: headers,
+        body: body
+    );
+    var jsonObject = json.decode(response.body);
+    if (response.statusCode == 200) {
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => HomeScreen(),
+      ));
+      // return jsonObject ;// you can mapping json object also here
+    } else {
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Sending Message"),
+      ));// you can mapping json object also here
+    }
+    print("${response.statusCode}");
+    print(response.body);
+    return response;
   }
+  // callLoginApi() {
+  //   final service = ApiServices();
+  //
+  //   service.apiCallLogin(
+  //     {
+  //       "Username":emailController.text,
+  //       "Password":passwordController.text,
+  //     },
+  //   ).then((value){
+  //     if(value.status != null){
+  //       print(value.status!);
+  //     }else{
+  //       print(value.message!);
+  //     }
+  //   });
+  // }
 }
