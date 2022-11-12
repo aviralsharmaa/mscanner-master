@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart ' as http;
 import 'package:http/http.dart%20';
 import 'package:msocial_scanner_app/Home_page.dart';
+import 'package:msocial_scanner_app/models/logindataa.dart';
+
+import 'ApiCallingLogin.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -11,28 +14,60 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  bool _isObscure = true;
+
+
+  // bool _isObscure = true;
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  Future<void> login(String email, password) async {
-    try {
-      Response response = await post(
-          Uri.parse(
-              'https://api.msocialin.com/api/Authontication_Controller/login'),
-          body: {'email': email, 'password': password});
-      if (response.statusCode == 200) {
-        print('Pass');
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomeScreen()));
-      } else {
-        print('Failed');
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-  }
+  Future<logindata?>? cred;
 
+  Future<http.Response> callLoginApi() async {
+    var url ='https://api.msocialin.com/api/Authontication_Controller/login';
+
+    Map data = {
+      'username':
+      'password'
+    }
+    //encode Map to JSON
+    var body = json.encode(data);
+
+    var response = await http.post(url,
+        headers: {"Content-Type": "application/json"},
+        body: body
+    );
+    print("${response.statusCode}");
+    print("
+  // List<Data>? idpass = [];
+
+  // Future<logindata> loginauth() async{
+  //   final rsponse = await http.get(Uri.parse(
+  //     'https://api.msocialin.com/api/Authontication_Controller/login'));
+  //       var jsonData - jsonData(response.body);
+  //   if (response.statusCode == 200) {
+  //     return cred.fromJson(jsonData);
+  //   }  else {
+  // throw Exception('Failed to load');
+  // }
+  // Future<logindata> loginS() async {
+  //   try {
+  //     Response response = await post(
+  //         Uri.parse(
+  //             'https://api.msocialin.com/api/Authontication_Controller/login'));
+  //         // body: {'email': username, 'password': password});
+  //     var jsonData = jsonDecode(response.body);
+  //     if (response.statusCode == 200) {
+  //       return cred.fromJson(jsonData);
+  //       print('Pass');
+  //       Navigator.pushReplacement(
+  //           context, MaterialPageRoute(builder: (context) => HomeScreen()));
+  //     } else {
+  //       print('Failed');
+  //     }
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  // }
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -75,7 +110,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               const SizedBox(height: 20),
               TextFormField(
                 controller: passwordController,
-                obscureText: _isObscure,
+                obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Password',
                   prefixIcon: Icon(
@@ -94,29 +129,47 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
               const SizedBox(height: 40),
               GestureDetector(
-                onTap: () {
-                  login(emailController.text.toString(),
-                      passwordController.text.toString());
-                },
-                child: Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(119, 14, 45, 1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Sign in',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 20, color: Colors.white70),
+                child: TextButton(
+                  onPressed: (){
+                    callLoginApi();
+                  },
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(119, 14, 45, 1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Center(
+                      child: Text(
+                        'Sign in',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 20, color: Colors.white70),
+                      ),
                     ),
                   ),
-                ),
+                )
               )
             ],
           ),
         ),
       ),
     );
+  }
+
+  callLoginApi() {
+    final service = ApiServices();
+
+    service.apiCallLogin(
+      {
+        "Username":emailController.text,
+        "Password":passwordController.text,
+      },
+    ).then((value){
+      if(value.status != null){
+        print(value.status!);
+      }else{
+        print(value.message!);
+      }
+    });
   }
 }
